@@ -1,4 +1,0 @@
-django-pagebits
-===============
-
-django-pagebits

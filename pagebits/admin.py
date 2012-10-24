@@ -8,7 +8,7 @@ class PageBitInline(admin.StackedInline):
     model = PageBit
     readonly_fields = ('created', 'modified')
     prepopulated_fields = {'slug': ('name',)}
-    extra = 0
+    extra = 1
 
     fields = (
         'name',
@@ -27,6 +27,7 @@ class PageGroupAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified')
     prepopulated_fields = {'slug': ('name',)}
     inlines = [PageBitInline]
+    search_fields = ('name', 'slug', 'bits__name', 'bits__slug')
 
     fields = (
         'name',

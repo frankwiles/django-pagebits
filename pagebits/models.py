@@ -21,6 +21,10 @@ class PageGroup(models.Model):
     created = models.DateTimeField(default=timezone.now)
     modified = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        verbose_name = 'Page Group'
+        verbose_name_plural = 'Page Groups'
+
     def __unicode__(self):
         return self.name
 
@@ -116,6 +120,10 @@ class PageData(models.Model):
             self.bit.slug
         )
 
+    class Meta:
+        verbose_name = 'Page Data'
+        verbose_name_plural = 'Page Data'
+
     def clean(self):
         # Ensure we have the proper data for our PageBit type
         if self.bit.type == 2:
@@ -128,11 +136,3 @@ class PageData(models.Model):
     def save(self, *args, **kwargs):
         self.modified = timezone.now()
         super(PageData, self).save(*args, **kwargs)
-
-    def has_add_permission(self, request):
-        """ Don't allow users to add new PageData items, handled by signals """
-        return False
-
-    def has_delete_permission(self, request):
-        """ Don't allow users to delete PageData items, handled by signals """
-        return False

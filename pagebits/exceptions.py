@@ -1,0 +1,4 @@
+
+
+class PageBitNameClash(Exception):
+    pass

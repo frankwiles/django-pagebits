@@ -1,7 +1,10 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 BIT_TYPE_CHOICES = (
     (0, 'Plain Text'),
@@ -40,7 +43,10 @@ class PageBit(models.Model):
     type = models.IntegerField('Bit Type', choices=BIT_TYPE_CHOICES, default=0)
     group = models.ForeignKey(PageGroup, related_name='bits')
     name = models.CharField('Name', max_length=100)
-    slug = models.SlugField(unique=False)
+    slug = models.SlugField(
+        unique=False,
+        help_text="This will be the name in the template context."
+    )
 
     use_charfield_widget = models.BooleanField(default=True)
     use_textarea_widget = models.BooleanField(default=False)
@@ -76,10 +82,57 @@ class PageBit(models.Model):
 
         super(PageBit, self).save(*args, **kwargs)
 
+    def resolve(self):
+        if self.type == 0:
+            # Handle simple plain text returns
+            return self.data.data
+        elif self.type == 1:
+            # Mark HTML data safe to avoid escaping it in views
+            return mark_safe(self.data.data)
+        elif self.type == 2:
+            # Return the actual image itself
+            return self.data.image
+
+
+# Connect post save signal to create PageData items
+@receiver(post_save, sender=PageBit)
+def create_page_data(sender, instance, created, **kwargs):
+    if created:
+        PageData.objects.create(bit=instance)
+
 
 class PageData(models.Model):
     bit = models.OneToOneField(PageBit, related_name='data')
     data = models.TextField(blank=True)
     image = models.ImageField(upload_to='pagebits/data/images/', blank=True, null=True)
 
+    created = models.DateTimeField(default=timezone.now)
+    modified = models.DateTimeField(default=timezone.now)
 
+    def __unicode__(self):
+        return "%s - %s (%s)" % (
+            self.bit.group.name,
+            self.bit.name,
+            self.bit.slug
+        )
+
+    def clean(self):
+        # Ensure we have the proper data for our PageBit type
+        if self.bit.type == 2:
+            if not self.image:
+                raise ValidationError("No image entered for image type.")
+        else:
+            if not self.data:
+                raise ValidationError("No text entered for text type")
+
+    def save(self, *args, **kwargs):
+        self.modified = timezone.now()
+        super(PageData, self).save(*args, **kwargs)
+
+    def has_add_permission(self, request):
+        """ Don't allow users to add new PageData items, handled by signals """
+        return False
+
+    def has_delete_permission(self, request):
+        """ Don't allow users to delete PageData items, handled by signals """
+        return False

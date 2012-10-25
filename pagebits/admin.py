@@ -9,12 +9,11 @@ from .models import BitGroup, PageBit, Page
 class PageBitInline(admin.StackedInline):
     model = PageBit
     readonly_fields = ('created', 'modified')
-    prepopulated_fields = {'slug': ('name',)}
     extra = 1
 
     fields = (
         'name',
-        'slug',
+        'context_name',
         'group',
         'type',
         'required',
@@ -30,7 +29,7 @@ class BitGroupAdmin(admin.ModelAdmin):
     readonly_fields = ('created', 'modified')
     prepopulated_fields = {'slug': ('name',)}
     inlines = [PageBitInline]
-    search_fields = ('name', 'slug', 'bits__name', 'bits__slug')
+    search_fields = ('name', 'slug', 'bits__name', 'bits__context_name')
 
     fields = (
         'name',
@@ -68,6 +67,7 @@ class PageAdminForm(forms.ModelForm):
                     label=bit.name,
                     required=bit.required,
                     help_text=bit.help_text,
+                    initial=bit.data.data,
                 )
 
                 if bit.text_widget == 'textarea':
@@ -78,13 +78,15 @@ class PageAdminForm(forms.ModelForm):
                     label=bit.name,
                     required=bit.required,
                     help_text=bit.help_text,
-                    widget=CKEditorWidget()
+                    widget=CKEditorWidget(),
+                    initial=bit.data.data,
                 )
             elif bit.type == 2:
                 field = forms.ImageField(
                     label=bit.name,
                     required=bit.required,
-                    help_text=bit.help_text
+                    help_text=bit.help_text,
+                    initial=bit.data.image,
                 )
 
             fields[bit_key] = field
@@ -105,7 +107,19 @@ class PageAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """ Specially handle our slightly odd saving case """
-        pass
+        for key in form.cleaned_data.keys():
+            if not key.startswith('bit_'):
+                continue
+            bit, pk = key.split('_')
+            print "Saving pk: ", pk
+
+            bit = PageBit.objects.get(pk=pk)
+            if bit.type == 0 or bit.type == 1:
+                print "setting data to: ", form.cleaned_data[key]
+                bit.data.data = form.cleaned_data[key]
+            else:
+                bit.data.image = form.cleaned_data[key]
+            bit.data.save()
 
     def has_add_permission(self, request):
         """ Don't allow users to add new PageData items, handled by signals """

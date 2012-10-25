@@ -13,6 +13,6 @@ def pagebits(slug):
     group = BitGroup.objects.get_group(slug=slug)
 
     for bit in group.bits.all():
-        data[bit.slug] = bit.resolve()
+        data[bit.context_name] = bit.resolve()
 
     return data

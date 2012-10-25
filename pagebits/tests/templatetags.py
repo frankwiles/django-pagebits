@@ -16,6 +16,7 @@ class PageBitTemplateTagTests(TestCase):
         self.group = BitGroup.objects.create(name='testgroup')
         self.bit1 = PageBit.objects.create(
             name='header',
+            context_name='header',
             type=0,
             group=self.group
         )
@@ -23,7 +24,8 @@ class PageBitTemplateTagTests(TestCase):
         self.bit1.data.save()
 
         self.bit2 = PageBit.objects.create(
-            name='page-block',
+            name='page block',
+            context_name='page_block',
             type=1,
             group=self.group
         )
@@ -32,7 +34,8 @@ class PageBitTemplateTagTests(TestCase):
         self.bit2.data.save()
 
         self.bit3 = PageBit.objects.create(
-            name='logo-image',
+            name='logo image',
+            context_name='logo_image',
             type=2,
             group=self.group
         )
@@ -45,8 +48,8 @@ class PageBitTemplateTagTests(TestCase):
     def test_templatetag(self):
         bits = pagebits('testgroup')
         self.assertEqual(bits['header'], self.bit1.data.data)
-        self.assertEqual(bits['page-block'], self.bit2.data.data)
-        self.assertEqual(bits['logo-image'], self.bit3.data.image)
+        self.assertEqual(bits['page_block'], self.bit2.data.data)
+        self.assertEqual(bits['logo_image'], self.bit3.data.image)
 
     def tearDown(self):
         """ Cleanup """

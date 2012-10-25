@@ -66,8 +66,8 @@ class PageBit(models.Model):
     type = models.IntegerField('Bit Type', choices=BIT_TYPE_CHOICES, default=0)
     group = models.ForeignKey(BitGroup, related_name='bits')
     name = models.CharField('Name', max_length=100)
-    slug = models.SlugField(
-        unique=False,
+    context_name = models.CharField(
+        max_length=100,
         help_text="This will be the name in the template context."
     )
     order = models.IntegerField('Admin form display order', default=1)
@@ -97,27 +97,23 @@ class PageBit(models.Model):
         return self.name
 
     def clean(self):
-        # Ensure our slug and group__slug are unique together
+        # Ensure our context_name and group__slug are unique together
 
         qs = self.__class__._default_manager.filter(
             group__slug=self.group.slug,
-            slug=self.slug
+            context_name=self.context_name
         )
 
-        # Exclude ourself in checking for duplicate slugs
+        # Exclude ourself in checking for duplicates
         if self.pk:
             qs = qs.exclude(pk=self.pk)
 
         if qs.exists():
             raise ValidationError(
-                "The slug '%s' is already used in PageGroup '%s'" % (self.slug, self.group.name)
+                "The name '%s' is already used in PageGroup '%s'" % (self.context_name, self.group.name)
             )
 
     def save(self, *args, **kwargs):
-        # Slugify if does not exist on first save
-        if not self.pk and not self.slug:
-            self.slug = slugify(self.name)
-
         self.modified = timezone.now()
         self.full_clean()
 
@@ -142,7 +138,7 @@ def create_page_data(sender, instance, created, **kwargs):
         PageData.objects.create(bit=instance)
 
     # Bust the BitGroup cache
-    key = bitgroup_cache_key(instance.slug)
+    key = bitgroup_cache_key(instance.context_name)
     cache.delete(key)
 
 
@@ -158,7 +154,7 @@ class PageData(models.Model):
         return "%s - %s (%s)" % (
             self.bit.group.name,
             self.bit.name,
-            self.bit.slug
+            self.bit.context_name,
         )
 
     class Meta:

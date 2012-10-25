@@ -33,13 +33,13 @@ class PageBitView(TemplateView):
             # view, which could happen if you define two slugs with the same
             # bit slugs.
             for bit in group.bits.all():
-                if bit.slug in new_context:
+                if bit.context_name in new_context:
                     raise PageBitNameClash(
-                        "Bit with slug/context name '%s' already exists "
+                        "Bit with context_name '%s' already exists "
                         "in this view."
                     )
                 else:
-                    new_context[bit.slug] = bit.resolve()
+                    new_context[bit.context_name] = bit.resolve()
 
         context.update(new_context)
         return context

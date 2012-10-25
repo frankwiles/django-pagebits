@@ -15,6 +15,7 @@ class PageBitViewTests(TestCase):
         self.group = BitGroup.objects.create(name='testgroup')
         self.bit1 = PageBit.objects.create(
             name='header',
+            context_name='header',
             type=0,
             group=self.group
         )
@@ -22,7 +23,8 @@ class PageBitViewTests(TestCase):
         self.bit1.data.save()
 
         self.bit2 = PageBit.objects.create(
-            name='page-block',
+            name='page block',
+            context_name='page_block',
             type=1,
             group=self.group
         )
@@ -31,7 +33,8 @@ class PageBitViewTests(TestCase):
         self.bit2.data.save()
 
         self.bit3 = PageBit.objects.create(
-            name='logo-image',
+            name='logo image',
+            context_name='logo_image',
             type=2,
             group=self.group
         )
@@ -43,10 +46,9 @@ class PageBitViewTests(TestCase):
 
     def test_view(self):
         response = self.client.get(reverse('testview'))
-#        from IPython import embed; embed()
         self.assertEqual(response.context['header'], self.bit1.data.data)
-        self.assertEqual(response.context['page-block'], self.bit2.data.data)
-        self.assertEqual(response.context['logo-image'], self.bit3.data.image)
+        self.assertEqual(response.context['page_block'], self.bit2.data.data)
+        self.assertEqual(response.context['logo_image'], self.bit3.data.image)
 
     def tearDown(self):
         shutil.rmtree(settings.MEDIA_ROOT)

@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
     'debug_toolbar',
+    'django_coverage',
     'ckeditor',
     'pagebits'
 ]

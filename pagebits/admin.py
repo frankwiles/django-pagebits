@@ -80,7 +80,6 @@ class PageAdminForm(forms.ModelForm):
                     help_text=bit.help_text,
                     widget=CKEditorWidget()
                 )
-                print "Setting CKEditor"
             elif bit.type == 2:
                 field = forms.ImageField(
                     label=bit.name,

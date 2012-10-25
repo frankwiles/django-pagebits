@@ -1,5 +1,7 @@
-from django.contrib import admin
 from django import forms
+from django.contrib import admin
+from django.contrib.admin.util import unquote
+from django.utils.safestring import mark_safe
 
 from ckeditor.widgets import CKEditorWidget
 
@@ -24,16 +26,29 @@ class PageBitInline(admin.StackedInline):
     )
 
 
+class BitGroupAdminForm(forms.ModelForm):
+    instructions = forms.CharField(
+        required=False,
+        widget=CKEditorWidget()
+    )
+
+    class Meta:
+        model = BitGroup
+
+
 class BitGroupAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')
+    list_display = ('name', 'slug', 'description')
     readonly_fields = ('created', 'modified')
     prepopulated_fields = {'slug': ('name',)}
     inlines = [PageBitInline]
     search_fields = ('name', 'slug', 'bits__name', 'bits__context_name')
+    form = BitGroupAdminForm
 
     fields = (
         'name',
         'slug',
+        'description',
+        'instructions',
         ('created', 'modified'),
     )
 
@@ -45,6 +60,7 @@ admin.site.register(BitGroup, BitGroupAdmin)
 
 class PageAdminForm(forms.ModelForm):
     """ Special form for editing a PageGroup's actual content """
+    change_form_template = 'admin/pages_change_form.html'
 
     class Meta:
         model = Page
@@ -53,6 +69,7 @@ class PageAdminForm(forms.ModelForm):
             'slug',
             'created',
             'modified',
+            'instructions',
         )
 
     def get_dynamic_fields(self, obj):
@@ -104,6 +121,22 @@ class PageAdmin(admin.ModelAdmin):
         fields = admin_form.get_dynamic_fields(obj)
         form = type('PageAdminForm', (forms.ModelForm,), fields)
         return form
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        template_response = super(PageAdmin, self).change_view(
+            request,
+            object_id,
+            form_url,
+            extra_context
+        )
+
+        obj = self.get_object(request, unquote(object_id))
+
+        if obj.instructions:
+            safe_instructions = mark_safe(obj.instructions)
+            template_response.context_data['instructions'] = safe_instructions
+
+        return template_response
 
     def save_model(self, request, obj, form, change):
         """ Specially handle our slightly odd saving case """

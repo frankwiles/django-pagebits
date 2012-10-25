@@ -21,7 +21,14 @@ class BitGroup(models.Model):
     """ A Page Group, which can be used on more than one logical page """
     name = models.CharField('Name', max_length=100)
     slug = models.SlugField()
-
+    description = models.TextField(
+        blank=True,
+        help_text="Description show in the admin",
+    )
+    instructions = models.TextField(
+        blank=True,
+        help_text='Detailed instructions presented at top of the admin form.',
+    )
     created = models.DateTimeField(default=timezone.now)
     modified = models.DateTimeField(default=timezone.now)
 

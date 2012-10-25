@@ -1,7 +1,7 @@
 from django.contrib import admin
-#from django import forms
+from django import forms
 
-from .models import PageGroup, PageBit, PageData
+from .models import PageGroup, PageBit, Page
 
 
 class PageBitInline(admin.StackedInline):
@@ -15,8 +15,9 @@ class PageBitInline(admin.StackedInline):
         'slug',
         'group',
         'type',
-        'use_charfield_widget',
-        'use_textarea_widget',
+        'required',
+        'order',
+        'text_widget',
         'help_text',
         ('created', 'modified'),
     )
@@ -41,18 +42,64 @@ class PageGroupAdmin(admin.ModelAdmin):
 admin.site.register(PageGroup, PageGroupAdmin)
 
 
-class PageDataAdmin(admin.ModelAdmin):
-    readonly_fields = ('bit', 'created', 'modified')
-
-    fields = (
-        'bit',
-        'data',
-        'image',
-        ('created', 'modified'),
-    )
+class PageAdminForm(forms.ModelForm):
+    """ Special form for editing a PageGroup's actual content """
 
     class Meta:
-        model = PageData
+        model = Page
+        exclude = (
+            'name',
+            'slug',
+            'created',
+            'modified',
+        )
+
+    def get_dynamic_fields(self, obj):
+        fields = {}
+
+        # Add our dynamic fields
+        for bit in obj.bits.all():
+            bit_key = 'bit_%s' % bit.pk
+            if bit.type == 0 or bit.type == 1:
+                if bit.text_widget == 'charfield':
+                    field = forms.CharField(
+                        label=bit.name,
+                        required=bit.required,
+                        help_text=bit.help_text
+                    )
+                elif bit.text_widget == 'textarea':
+                    field = forms.CharField(
+                        label=bit.name,
+                        widget=forms.Textarea,
+                        required=bit.required,
+                        help_text=bit.help_text,
+                    )
+            elif bit.type == 2:
+                field = forms.ImageField(
+                    label=bit.name,
+                    required=bit.required,
+                    help_text=bit.help_text
+                )
+
+            fields[bit_key] = field
+
+        return fields
+
+
+class PageAdmin(admin.ModelAdmin):
+
+    class Meta:
+        model = Page
+
+    def get_form(self, request, obj=None, **kwargs):
+        admin_form = PageAdminForm()
+        fields = admin_form.get_dynamic_fields(obj)
+        form = type('PageAdminForm', (forms.ModelForm,), fields)
+        return form
+
+    def save_model(self, request, obj, form, change):
+        """ Specially handle our slightly odd saving case """
+        pass
 
     def has_add_permission(self, request):
         """ Don't allow users to add new PageData items, handled by signals """
@@ -62,4 +109,4 @@ class PageDataAdmin(admin.ModelAdmin):
         """ Don't allow users to delete PageData items, handled by signals """
         return False
 
-admin.site.register(PageData, PageDataAdmin)
+admin.site.register(Page, PageAdmin)

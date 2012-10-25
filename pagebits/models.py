@@ -38,6 +38,19 @@ class PageGroup(models.Model):
         super(PageGroup, self).save(*args, **kwargs)
 
 
+class Page(PageGroup):
+    """ Proxy model to allow special admin interface """
+
+    class Meta:
+        proxy = True
+
+
+TEXT_WIDGET_CHOICES = (
+    ('charfield', 'Text Input Field'),
+    ('textarea', 'Textarea Input Field'),
+)
+
+
 class PageBit(models.Model):
     """
     A PageBit stores the sensitive data about a Bit, what type of data it can
@@ -51,14 +64,28 @@ class PageBit(models.Model):
         unique=False,
         help_text="This will be the name in the template context."
     )
+    order = models.IntegerField('Admin form display order', default=1)
 
-    use_charfield_widget = models.BooleanField(default=True)
-    use_textarea_widget = models.BooleanField(default=False)
+    text_widget = models.CharField(
+        max_length=10,
+        choices=TEXT_WIDGET_CHOICES,
+        default='charfield',
+        help_text="Which type of input widget to use in admin form",
+    )
+
+    required = models.BooleanField(
+        'Required',
+        default=False,
+        help_text='Is this field required?'
+    )
 
     help_text = models.TextField('Optional admin help text', blank=True)
 
     created = models.DateTimeField(default=timezone.now)
     modified = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ('order', 'created')
 
     def __unicode__(self):
         return self.name
@@ -70,6 +97,10 @@ class PageBit(models.Model):
             group__slug=self.group.slug,
             slug=self.slug
         )
+
+        # Exclude ourself in checking for duplicate slugs
+        if self.pk:
+            qs = qs.exclude(pk=self.pk)
 
         if qs.exists():
             raise ValidationError(
@@ -123,15 +154,6 @@ class PageData(models.Model):
     class Meta:
         verbose_name = 'Page Data'
         verbose_name_plural = 'Page Data'
-
-    def clean(self):
-        # Ensure we have the proper data for our PageBit type
-        if self.bit.type == 2:
-            if not self.image:
-                raise ValidationError("No image entered for image type.")
-        else:
-            if not self.data:
-                raise ValidationError("No text entered for text type")
 
     def save(self, *args, **kwargs):
         self.modified = timezone.now()

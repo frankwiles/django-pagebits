@@ -3,7 +3,7 @@ from django.template.response import TemplateResponse
 from django.views.generic import TemplateView
 
 from .exceptions import PageBitNameClash
-from .models import PageGroup
+from .models import BitGroup
 
 
 class PageBitView(TemplateView):
@@ -27,10 +27,7 @@ class PageBitView(TemplateView):
         new_context = {}
 
         for slug in self.group_slugs:
-            group = PageGroup.objects.select_related(
-                'bits',
-                'bits__data',
-            ).get(slug=slug)
+            group = BitGroup.objects.get_group(slug=slug)
 
             # Ensure we don't have slug/context name conflicts inside a single
             # view, which could happen if you define two slugs with the same

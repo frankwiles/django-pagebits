@@ -10,4 +10,5 @@ rope for a user to hang themselves with.
 settings
 ========
 
-PAGEBIT_CACHE_PREFIX = 'pagebits_'
+PAGEBIT_CACHE_PREFIX = 'pagebits'
+PAGEBIT_CACHE_TIMEOUT = 3600

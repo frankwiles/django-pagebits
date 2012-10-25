@@ -2,14 +2,15 @@ import os
 import shutil
 
 from django.core.files import File
-from django.core.urlresolvers import reverse
+from django.core.cache import cache
 from django.conf import settings
 from django.test import TestCase
 
 from ..models import BitGroup, PageBit
+from ..templatetags.pagebits import pagebits
 
 
-class PageBitViewTests(TestCase):
+class PageBitTemplateTagTests(TestCase):
 
     def setUp(self):
         self.group = BitGroup.objects.create(name='testgroup')
@@ -41,12 +42,13 @@ class PageBitViewTests(TestCase):
         self.bit3.data.image = myfile
         self.bit3.data.save()
 
-    def test_view(self):
-        response = self.client.get(reverse('testview'))
-#        from IPython import embed; embed()
-        self.assertEqual(response.context['header'], self.bit1.data.data)
-        self.assertEqual(response.context['page-block'], self.bit2.data.data)
-        self.assertEqual(response.context['logo-image'], self.bit3.data.image)
+    def test_templatetag(self):
+        bits = pagebits('testgroup')
+        self.assertEqual(bits['header'], self.bit1.data.data)
+        self.assertEqual(bits['page-block'], self.bit2.data.data)
+        self.assertEqual(bits['logo-image'], self.bit3.data.image)
 
     def tearDown(self):
+        """ Cleanup """
+        cache.clear()
         shutil.rmtree(settings.MEDIA_ROOT)

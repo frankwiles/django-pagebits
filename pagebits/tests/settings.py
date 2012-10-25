@@ -70,6 +70,8 @@ TEMPLATE_DIRS = (
     os.path.join(BASE_PATH, 'templates'),
 )
 
+MEDIA_ROOT = os.path.join(BASE_PATH, 'media')
+
 # Debug Toolbar
 INTERNAL_IPS = ('127.0.0.1', )
 DEBUG_TOOLBAR_PANELS = (

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 
-from .models import PageGroup, PageBit, Page
+from .models import BitGroup, PageBit, Page
 
 
 class PageBitInline(admin.StackedInline):
@@ -23,7 +23,7 @@ class PageBitInline(admin.StackedInline):
     )
 
 
-class PageGroupAdmin(admin.ModelAdmin):
+class BitGroupAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
     readonly_fields = ('created', 'modified')
     prepopulated_fields = {'slug': ('name',)}
@@ -37,9 +37,9 @@ class PageGroupAdmin(admin.ModelAdmin):
     )
 
     class Meta:
-        model = PageGroup
+        model = BitGroup
 
-admin.site.register(PageGroup, PageGroupAdmin)
+admin.site.register(BitGroup, BitGroupAdmin)
 
 
 class PageAdminForm(forms.ModelForm):

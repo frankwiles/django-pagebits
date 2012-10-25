@@ -1,10 +1,14 @@
 from django.db import models
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+
+from .managers import BitGroupManager
+from .utils import bitgroup_cache_key
 
 BIT_TYPE_CHOICES = (
     (0, 'Plain Text'),
@@ -13,7 +17,7 @@ BIT_TYPE_CHOICES = (
 )
 
 
-class PageGroup(models.Model):
+class BitGroup(models.Model):
     """ A Page Group, which can be used on more than one logical page """
     name = models.CharField('Name', max_length=100)
     slug = models.SlugField()
@@ -21,9 +25,11 @@ class PageGroup(models.Model):
     created = models.DateTimeField(default=timezone.now)
     modified = models.DateTimeField(default=timezone.now)
 
+    objects = BitGroupManager()
+
     class Meta:
-        verbose_name = 'Page Group'
-        verbose_name_plural = 'Page Groups'
+        verbose_name = 'Bit Group'
+        verbose_name_plural = 'Bit Groups'
 
     def __unicode__(self):
         return self.name
@@ -35,10 +41,10 @@ class PageGroup(models.Model):
 
         self.modified = timezone.now()
 
-        super(PageGroup, self).save(*args, **kwargs)
+        super(BitGroup, self).save(*args, **kwargs)
 
 
-class Page(PageGroup):
+class Page(BitGroup):
     """ Proxy model to allow special admin interface """
 
     class Meta:
@@ -58,7 +64,7 @@ class PageBit(models.Model):
     and others only the ability to edit the actual data.
     """
     type = models.IntegerField('Bit Type', choices=BIT_TYPE_CHOICES, default=0)
-    group = models.ForeignKey(PageGroup, related_name='bits')
+    group = models.ForeignKey(BitGroup, related_name='bits')
     name = models.CharField('Name', max_length=100)
     slug = models.SlugField(
         unique=False,
@@ -129,11 +135,15 @@ class PageBit(models.Model):
             return self.data.image
 
 
-# Connect post save signal to create PageData items
 @receiver(post_save, sender=PageBit)
 def create_page_data(sender, instance, created, **kwargs):
+    # Create PageData items on creation
     if created:
         PageData.objects.create(bit=instance)
+
+    # Bust the BitGroup cache
+    key = bitgroup_cache_key(instance.slug)
+    cache.delete(key)
 
 
 class PageData(models.Model):

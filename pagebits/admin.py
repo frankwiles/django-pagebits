@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django import forms
 
+from ckeditor.widgets import CKEditorWidget
+
 from .models import BitGroup, PageBit, Page
 
 
@@ -60,20 +62,25 @@ class PageAdminForm(forms.ModelForm):
         # Add our dynamic fields
         for bit in obj.bits.all():
             bit_key = 'bit_%s' % bit.pk
-            if bit.type == 0 or bit.type == 1:
-                if bit.text_widget == 'charfield':
-                    field = forms.CharField(
-                        label=bit.name,
-                        required=bit.required,
-                        help_text=bit.help_text
-                    )
-                elif bit.text_widget == 'textarea':
-                    field = forms.CharField(
-                        label=bit.name,
-                        widget=forms.Textarea,
-                        required=bit.required,
-                        help_text=bit.help_text,
-                    )
+
+            if bit.type == 0:
+                field = forms.CharField(
+                    label=bit.name,
+                    required=bit.required,
+                    help_text=bit.help_text,
+                )
+
+                if bit.text_widget == 'textarea':
+                    field.widget = forms.Textarea()
+
+            elif bit.type == 1:
+                field = forms.CharField(
+                    label=bit.name,
+                    required=bit.required,
+                    help_text=bit.help_text,
+                    widget=CKEditorWidget()
+                )
+                print "Setting CKEditor"
             elif bit.type == 2:
                 field = forms.ImageField(
                     label=bit.name,

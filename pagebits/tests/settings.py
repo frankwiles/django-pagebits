@@ -29,7 +29,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.staticfiles',
     'debug_toolbar',
+    'ckeditor',
     'pagebits'
 ]
 
@@ -65,11 +67,13 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_PATH, 'static'),
 )
+STATIC_ROOT = os.path.join(BASE_PATH, 'static_deploy')
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_PATH, 'templates'),
 )
 
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_PATH, 'media')
 
 # Debug Toolbar
@@ -90,3 +94,15 @@ DEBUG_TOOLBAR_CONFIG = {
     'HIDE_DJANGO_SQL': False,
 }
 
+CKEDITOR_UPLOAD_PATH = '/tmp'
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'MyToolBar',
+        'toolbar_MyToolBar': [[
+            'Format', 'Bold', 'Italic', 'Outdent', 'Indent', 'NumberedList', 'BulletedList',
+            'Link', 'Unlink', 'Anchor', 'Image', 'Source',
+        ]],
+        'removePlugins': 'elementspath, fonts',
+        'forcePasteAsPlainText': True,
+    },
+}

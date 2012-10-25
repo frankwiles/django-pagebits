@@ -76,7 +76,7 @@ class PageBit(models.Model):
         max_length=10,
         choices=TEXT_WIDGET_CHOICES,
         default='charfield',
-        help_text="Which type of input widget to use in admin form",
+        help_text="Which type of input widget to use in admin form for Plain Text fields.",
     )
 
     required = models.BooleanField(

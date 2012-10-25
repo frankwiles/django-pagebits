@@ -4,7 +4,7 @@ from django.core.files import File
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
-from ..models import PageGroup, PageBit, PageData
+from ..models import PageGroup, PageBit
 
 
 class PageBitViewTests(TestCase):

@@ -144,11 +144,9 @@ class PageAdmin(admin.ModelAdmin):
             if not key.startswith('bit_'):
                 continue
             bit, pk = key.split('_')
-            print "Saving pk: ", pk
 
             bit = PageBit.objects.get(pk=pk)
             if bit.type == 0 or bit.type == 1:
-                print "setting data to: ", form.cleaned_data[key]
                 bit.data.data = form.cleaned_data[key]
             else:
                 bit.data.image = form.cleaned_data[key]

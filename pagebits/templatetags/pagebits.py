@@ -15,6 +15,7 @@ def pagebits(slug):
 
         for bit in group.bits.all():
             data[bit.context_name] = bit.resolve()
+
     except BitGroup.DoesNotExist:
         pass
 

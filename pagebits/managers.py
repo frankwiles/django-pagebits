@@ -14,9 +14,8 @@ class BitGroupManager(models.Manager):
 
         if not cached_group:
             cached_group = self.get_query_set().select_related(
-                'bits',
-                'bits__data'
-            ).get(slug=slug)
+                'bits'
+            ).prefetch_related('bits__data').get(slug=slug)
 
             timeout = getattr(settings, 'PAGEBITS_CACHE_TIMEOUT', 3600)
 

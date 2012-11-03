@@ -5,7 +5,7 @@ from django.utils.safestring import mark_safe
 
 from ckeditor.widgets import CKEditorWidget
 
-from .models import BitGroup, PageBit, Page
+from .models import BitGroup, PageBit, PageEdit
 
 
 class PageBitInline(admin.StackedInline):
@@ -63,7 +63,7 @@ class PageAdminForm(forms.ModelForm):
     change_form_template = 'admin/pages_change_form.html'
 
     class Meta:
-        model = Page
+        model = PageEdit
         exclude = (
             'name',
             'slug',
@@ -112,9 +112,10 @@ class PageAdminForm(forms.ModelForm):
 
 
 class PageAdmin(admin.ModelAdmin):
+    """ Admin to edit BitGroup data """
 
     class Meta:
-        model = Page
+        model = PageEdit
 
     def get_form(self, request, obj=None, **kwargs):
         admin_form = PageAdminForm()
@@ -160,4 +161,4 @@ class PageAdmin(admin.ModelAdmin):
         """ Don't allow users to delete PageData items, handled by signals """
         return False
 
-admin.site.register(Page, PageAdmin)
+admin.site.register(PageEdit, PageAdmin)

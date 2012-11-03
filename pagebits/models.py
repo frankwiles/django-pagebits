@@ -46,10 +46,12 @@ class BitGroup(models.Model):
         super(BitGroup, self).save(*args, **kwargs)
 
 
-class Page(BitGroup):
+class PageEdit(BitGroup):
     """ Proxy model to allow special admin interface """
 
     class Meta:
+        verbose_name = _('Edit Page Data')
+        verbose_name_plural = _('Edit Page Data')
         proxy = True
 
 

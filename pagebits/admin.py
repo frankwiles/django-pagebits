@@ -79,7 +79,7 @@ class PageAdminForm(forms.ModelForm):
         for bit in obj.bits.all():
             bit_key = 'bit_%s' % bit.pk
 
-            if bit.type == 0:
+            if bit.type == PageBit.PLAIN_TEXT:
                 field = forms.CharField(
                     label=bit.name,
                     required=bit.required,
@@ -90,7 +90,7 @@ class PageAdminForm(forms.ModelForm):
                 if bit.text_widget == 'textarea':
                     field.widget = forms.Textarea()
 
-            elif bit.type == 1:
+            elif bit.type == PageBit.HTML:
                 field = forms.CharField(
                     label=bit.name,
                     required=bit.required,
@@ -98,7 +98,7 @@ class PageAdminForm(forms.ModelForm):
                     widget=CKEditorWidget(),
                     initial=bit.data.data,
                 )
-            elif bit.type == 2:
+            elif bit.type == PageBit.IMAGE:
                 field = forms.ImageField(
                     label=bit.name,
                     required=bit.required,
@@ -146,7 +146,7 @@ class PageAdmin(admin.ModelAdmin):
             bit, pk = key.split('_')
 
             bit = PageBit.objects.get(pk=pk)
-            if bit.type == 0 or bit.type == 1:
+            if bit.type == PageBit.PLAIN_TEXT or bit.type == PageBit.HTML:
                 bit.data.data = form.cleaned_data[key]
             else:
                 bit.data.image = form.cleaned_data[key]

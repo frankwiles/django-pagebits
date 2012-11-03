@@ -6,28 +6,23 @@ from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from .managers import BitGroupManager
 from .utils import bitgroup_cache_key
 
-BIT_TYPE_CHOICES = (
-    (0, 'Plain Text'),
-    (1, 'HTML'),
-    (2, 'Image'),
-)
-
 
 class BitGroup(models.Model):
     """ A Page Group, which can be used on more than one logical page """
-    name = models.CharField('Name', max_length=100)
+    name = models.CharField(_('Name'), max_length=100)
     slug = models.SlugField()
     description = models.TextField(
         blank=True,
-        help_text="Description show in the admin",
+        help_text=_("Description show in the admin"),
     )
     instructions = models.TextField(
         blank=True,
-        help_text='Detailed instructions presented at top of the admin form.',
+        help_text=_("Detailed instructions presented at top of the admin form."),
     )
     created = models.DateTimeField(default=timezone.now)
     modified = models.DateTimeField(default=timezone.now)
@@ -35,8 +30,8 @@ class BitGroup(models.Model):
     objects = BitGroupManager()
 
     class Meta:
-        verbose_name = 'Bit Group'
-        verbose_name_plural = 'Bit Groups'
+        verbose_name = _('Bit Group')
+        verbose_name_plural = _('Bit Groups')
 
     def __unicode__(self):
         return self.name
@@ -58,41 +53,51 @@ class Page(BitGroup):
         proxy = True
 
 
-TEXT_WIDGET_CHOICES = (
-    ('charfield', 'Text Input Field'),
-    ('textarea', 'Textarea Input Field'),
-)
-
-
 class PageBit(models.Model):
     """
     A PageBit stores the sensitive data about a Bit, what type of data it can
     handle.  This allows permissions to be given to some users to add/edit bits,
     and others only the ability to edit the actual data.
     """
-    type = models.IntegerField('Bit Type', choices=BIT_TYPE_CHOICES, default=0)
+    PLAIN_TEXT = 0
+    HTML = 1
+    IMAGE = 2
+    BIT_TYPE_CHOICES = (
+        (PLAIN_TEXT, 'Plain Text'),
+        (HTML, 'HTML'),
+        (IMAGE, 'Image'),
+    )
+
+    type = models.IntegerField(_('Bit Type'), choices=BIT_TYPE_CHOICES, default=0)
     group = models.ForeignKey(BitGroup, related_name='bits')
-    name = models.CharField('Name', max_length=100)
+    name = models.CharField(_('Name'), max_length=100)
     context_name = models.CharField(
         max_length=100,
-        help_text="This will be the name in the template context."
+        help_text=_("This will be the name in the template context."),
     )
-    order = models.IntegerField('Admin form display order', default=1)
+    order = models.IntegerField(_('Admin form display order'), default=1)
+
+    WIDGET_CHARFIELD = 'charfield'
+    WIDGET_TEXTAREA = 'textarea'
+    TEXT_WIDGET_CHOICES = (
+        (WIDGET_CHARFIELD, _('Text Input Field')),
+        (WIDGET_TEXTAREA, _('Textarea Input Field')),
+    )
 
     text_widget = models.CharField(
         max_length=10,
         choices=TEXT_WIDGET_CHOICES,
         default='charfield',
-        help_text="Which type of input widget to use in admin form for Plain Text fields.",
+        help_text=_("Which type of input widget to use in admin form for Plain Text fields."),
     )
 
     required = models.BooleanField(
-        'Required',
+        _('Required'),
         default=False,
-        help_text='Is this field required?'
+        help_text=_('Is this field required?')
     )
 
-    help_text = models.TextField('Optional admin help text', blank=True)
+    help_text = models.TextField(_('Optional admin help text'), blank=True)
 
     created = models.DateTimeField(default=timezone.now)
     modified = models.DateTimeField(default=timezone.now)
@@ -127,13 +132,13 @@ class PageBit(models.Model):
         super(PageBit, self).save(*args, **kwargs)
 
     def resolve(self):
-        if self.type == 0:
+        if self.type == self.PLAIN_TEXT:
             # Handle simple plain text returns
             return self.data.data
-        elif self.type == 1:
+        elif self.type == self.HTML:
             # Mark HTML data safe to avoid escaping it in views
             return mark_safe(self.data.data)
-        elif self.type == 2:
+        elif self.type == self.IMAGE:
             # Return the actual image itself
             return self.data.image
 
@@ -156,7 +161,11 @@ def create_page_data(sender, instance, created, **kwargs):
 class PageData(models.Model):
     bit = models.OneToOneField(PageBit, related_name='data')
     data = models.TextField(blank=True)
-    image = models.ImageField(upload_to='pagebits/data/images/', blank=True, null=True)
+    image = models.ImageField(
+        upload_to='pagebits/data/images/',
+        blank=True,
+        null=True
+    )
 
     created = models.DateTimeField(default=timezone.now)
     modified = models.DateTimeField(default=timezone.now)
@@ -169,8 +178,8 @@ class PageData(models.Model):
         )
 
     class Meta:
-        verbose_name = 'Page Data'
-        verbose_name_plural = 'Page Data'
+        verbose_name = _('Page Data')
+        verbose_name_plural = _('Page Data')
 
     def save(self, *args, **kwargs):
         self.modified = timezone.now()

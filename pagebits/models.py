@@ -140,7 +140,11 @@ class PageBit(models.Model):
 
 @receiver(post_save, sender=PageBit)
 def create_page_data(sender, instance, created, **kwargs):
-    # Create PageData items on creation
+    """ Handle automatically creating PageData items on creation """
+    # Do nothing if we're loading a fixture
+    if kwargs.get('raw', False):
+        return
+
     if created:
         PageData.objects.create(bit=instance)
 

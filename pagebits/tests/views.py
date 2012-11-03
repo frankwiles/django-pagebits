@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.test import TestCase
 
-from ..models import BitGroup, PageBit
+from ..models import BitGroup, PageBit, PageTemplate, Page
 
 
 class PageBitViewTests(TestCase):
@@ -49,6 +49,37 @@ class PageBitViewTests(TestCase):
         self.assertEqual(response.context['header'], self.bit1.data.data)
         self.assertEqual(response.context['page_block'], self.bit2.data.data)
         self.assertEqual(response.context['logo_image'], self.bit3.data.image)
+
+    def test_fallback_pages(self):
+        template = PageTemplate.objects.create(name='test', path='test.html')
+        page = Page.objects.create(
+            name='Test',
+            url='test2/test/',
+            template=template,
+        )
+        page.bit_groups.add(self.group)
+
+        response = self.client.get('/test2/test/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['header'], self.bit1.data.data)
+        self.assertEqual(response.context['page_block'], self.bit2.data.data)
+
+        response = self.client.get('/notest/nohere/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_middlware_pages(self):
+        template = PageTemplate.objects.create(name='test', path='test.html')
+        page = Page.objects.create(
+            name='Test',
+            url='test3/test/',
+            template=template,
+        )
+        page.bit_groups.add(self.group)
+
+        response = self.client.get('/test3/test/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['header'], self.bit1.data.data)
+        self.assertEqual(response.context['page_block'], self.bit2.data.data)
 
     def tearDown(self):
         shutil.rmtree(settings.MEDIA_ROOT)

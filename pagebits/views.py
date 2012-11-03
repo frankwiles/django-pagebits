@@ -1,8 +1,10 @@
 from django.core.exceptions import ImproperlyConfigured
+from django.shortcuts import get_object_or_404
+from django.template import loader
 from django.template.response import TemplateResponse
 from django.views.generic import TemplateView
 
-from .models import BitGroup
+from .models import BitGroup, Page
 
 
 class PageBitView(TemplateView):
@@ -49,3 +51,19 @@ class PageBitView(TemplateView):
         self.get_template_name()
         context = self.get_context_data(**kwargs)
         return TemplateResponse(request, self.template_name, context)
+
+
+class PageView(PageBitView):
+    """
+    View to display more generic "flatpages"
+    """
+
+    def get(self, request, *args, **kwargs):
+        self.url = self.kwargs.pop('url', None)
+        self.page = get_object_or_404(Page, url=self.url)
+
+        self.group_slugs = [x.slug for x in self.page.bit_groups.all()]
+        context = self.get_context_data(**kwargs)
+
+        return TemplateResponse(request, self.page.template.path, context)
+

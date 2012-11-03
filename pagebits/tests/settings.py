@@ -23,7 +23,7 @@ DEBUG = True
 #
 #COVERAGE_REPORT_HTML_OUTPUT_DIR = os.path.join(BASE_PATH, 'coverage')
 
-INSTALLED_APPS = [
+PREREQ_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -33,8 +33,13 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'django_coverage',
     'ckeditor',
-    'pagebits'
 ]
+
+PROJECT_APPS = [
+    'pagebits',
+]
+
+INSTALLED_APPS = PREREQ_APPS + PROJECT_APPS
 
 ROOT_URLCONF = 'pagebits.tests.urls'
 
@@ -107,3 +112,22 @@ CKEDITOR_CONFIGS = {
         'forcePasteAsPlainText': True,
     },
 }
+
+# Coverage settings
+TEST_RUNNER = 'pagebits.tests.testrunner.OurCoverageRunner'
+COVERAGE_MODULE_EXCLUDES = [
+    'admin$',
+    'locale$',
+    'migrations',
+    'search_indexes$',
+    'settings$',
+    'tests$',
+    'urls$',
+    'fixtures',
+    'testrunner',
+    'wsgi',
+    'factories',
+]
+COVERAGE_MODULE_EXCLUDES += PREREQ_APPS
+COVERAGE_REPORT_HTML_OUTPUT_DIR = os.path.join(BASE_PATH, 'coverage')
+COVERAGE_USE_CACHE = True

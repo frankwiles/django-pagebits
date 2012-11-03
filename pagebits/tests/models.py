@@ -25,3 +25,15 @@ class PageBitModelTests(TestCase):
         # Make sure PageData objects are created appropriately
         PageData.objects.get(bit=bit1)
         PageData.objects.get(bit=bit2)
+
+    def test_manager_caching(self):
+        """ Test that our manager caches appropriately """
+        group1 = BitGroup.objects.create(name='TestGroup1')
+        PageBit.objects.create(name='header', context_name='header', type=0, group=group1)
+        PageBit.objects.create(name='header2', context_name='header2', type=0, group=group1)
+
+        with self.assertNumQueries(3):
+            BitGroup.objects.get_group('testgroup1')
+
+        with self.assertNumQueries(0):
+            BitGroup.objects.get_group('testgroup1')

@@ -15,23 +15,23 @@ implemenations such as django-chunks and similar packages are cumbersome to use 
 BitGroups
 ---------
 
-BitGroups are simply that, a collection of various bits that are logically grouped together on the site. These could be for example:
+``BitGroup``\s are simply that, a collection of various bits that are logically grouped together on the site. These could be for example:
 
-    * A 'meta-<pagename>' BitGroup for each page that defines fields for the page title and meta description/keyword tags.
-    * A 'homepage-sidebar' BitGroup that defines various Bits that are displayed there. Perhaps you have header text, two HTML fields, and an image here.
-    * A 'homepage-content' BitGroup that defines 3 Plain Text header bits, 3 HTML bits, and 3 Image bits for a 3 column layout.
+    * A 'meta-<pagename>' ``BitGroup`` for each page that defines fields for the page title and meta description/keyword tags.
+    * A 'homepage-sidebar' ``BitGroup`` that defines various Bits that are displayed there. Perhaps you have header text, two HTML fields, and an image here.
+    * A 'homepage-content' ``BitGroup`` that defines 3 Plain Text header bits, 3 HTML bits, and 3 Image bits for a 3 column layout.
 
-BitGroups optionally lets you show the user two things in the admin interface:
+``BitGroup``\s optionally lets you show the user two things in the admin interface:
 
-    * A short plain text description of the BitGroup.  For example, "This defines the 3 content areas in the homepage sidebar." which helps the user to more quickly figure where the content is that they want to edit.
+    * A short plain text description of the ``BitGroup``.  For example, "This defines the 3 content areas in the homepage sidebar." which helps the user to more quickly figure where the content is that they want to edit.
     * HTML instructions which will be included in the admin above the editing form. Here you can define whatever more detailed instructions to your end user.
 
-BitGroups are always referenced by their slug field internally, but can use a more human readable name in the admin interface for the users.
+``BitGroup``\s are always referenced by their slug field internally, but can use a more human readable name in the admin interface for the users.
 
 PageBits
 --------
 
-Each BitGroup is made up of one or more PageBits. These are entered as an Admin Inline. PageBits define what content is allowed:
+Each ``BitGroup`` is made up of one or more ``PageBit``\s. These are entered as an Admin Inline. ``PageBit``\s define what content is allowed:
 
     1. Plain text which will be escaped on output
     2. HTML which will be automatically marked safe. Using the CKEditor to make things easier.
@@ -39,7 +39,7 @@ Each BitGroup is made up of one or more PageBits. These are entered as an Admin 
 
 They also define the order with which they are to be displayed in the admin interface and whether or not that specific bit is required or not.
 
-The admin interface dynamically constructs a form using the PageBit order, type, and widget type to construct an easier to understand interface for the user.  Instead of having to hunt around for the 5 different `bits` by name, perhaps prefixing related bits with a common string they have one form to edit per BitGroup.  If we did not group bits together for a typical marketing homepage with had 3 HTML <head> options, 3 on page headers, 3 HTML content areas and 3 images the user would have to click into:
+The admin interface dynamically constructs a form using the ``PageBit`` order, type, and widget type to construct an easier to understand interface for the user.  Instead of having to hunt around for the 5 different `bits` by name, perhaps prefixing related bits with a common string they have one form to edit per ``BitGroup``.  If we did not group bits together for a typical marketing homepage with had 3 HTML <head> options, 3 on page headers, 3 HTML content areas and 3 images the user would have to click into:
 
     * homepage_title
     * homepage_meta_description
@@ -60,12 +60,12 @@ They may also erroneously assume if they create 'homepage_content_4' that it wil
 Using PageBits
 ==============
 
-You can use PageBits in two ways via templatetags or the PageBitView. Both of these options make it easy to include multiple BitGroups in a simpel template or view.
+You can use PageBits in two ways via templatetags or the ``PageBitView``. Both of these options make it easy to include multiple ``BitGroup``\s in a simple template or view.
 
 tempatetag
 ----------
 
-An example of how you might use multiple BitGroups in a single template using template tags::
+An example of how you might use multiple ``BitGroup``\s in a single template using template tags::
 
     {% extends "base.html" %}
     {% load pagebits %}
@@ -96,7 +96,7 @@ An example of how you might use multiple BitGroups in a single template using te
 PageBitView
 -----------
 
-You can also use PageBits as a slightly smart TemplateView. This would define a simple URL, using a specified template with the same two BitGroups as above in a ``urls.py``::
+You can also use PageBits as a slightly smart ``TemplateView``. This would define a simple URL, using a specified template with the same two ``BitGroup``\s as above in a ``urls.py``::
 
     from django.conf.urls import patterns, url
     from pagebits.views import PageBitView
@@ -113,7 +113,7 @@ You can also use PageBits as a slightly smart TemplateView. This would define a 
         )
     )
 
-PageBit views incorporate the PageBit context names in order of definition.  This allows you to do override content areas with a fall back pattern.  For example you could set it up like::
+PageBit views incorporate the ``PageBit`` context names in order of definition.  This allows you to do override content areas with a fall back pattern.  For example you could set it up like::
 
     'group_slugs': [
         'default-meta',
@@ -123,7 +123,29 @@ PageBit views incorporate the PageBit context names in order of definition.  Thi
         'homepage-content'
     ]
 
-Assuming the 'homepage-meta' and 'homepage-sidebar' BitGroups had all optional fields, this would allow you to give the user the ability to show some default content on pages, but also override specific pages with page specific content where needed.
+Assuming the 'homepage-meta' and 'homepage-sidebar' ``BitGroup``\s had all optional fields, this would allow you to give the user the ability to show some default content on pages, but also override specific pages with page specific content where needed.
+
+Fallback Pages
+--------------
+
+These work much like Django's stock flatpage contrib application.  You define ``PageTemplate``\s that are available to users.  You can then define ``Page``\s that associate a URL, a ``PageTemplate``, and one or more ``BitGroup``\s to display in that page.
+
+This can be done by either including the urls.py as a "catch all" like so::
+
+    from pagebits.views import PageView
+
+    # Your normal URL patterns here, it is important to put the
+    # catchall at the end
+
+    urlpatterns += patterns('',
+        (r'^(?P<url>.*)$', PageView.as_view()),
+    )
+
+Or you can include Pagebits' middleware to do this for you, simple add::
+
+    'pagebits.middleware.PageBitMiddlware'
+
+To your ``MIDDLEWARE_CLASSES`` in your ``settings.py`` file.
 
 Caching
 =======

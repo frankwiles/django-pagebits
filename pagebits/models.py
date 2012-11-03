@@ -214,7 +214,7 @@ class Page(models.Model):
     url = models.CharField(
         _('URL'),
         max_length=200,
-        help_text=_("Define the URL for this page, for example '/about/'"),
+        help_text=_("Define the URL for this page, for example 'about/'. NOTE: You should not include the initial slash."),
         db_index=True,
     )
     template = models.ForeignKey(PageTemplate, related_name='pages')

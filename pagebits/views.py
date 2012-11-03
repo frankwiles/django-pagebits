@@ -2,7 +2,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django.template.response import TemplateResponse
 from django.views.generic import TemplateView
 
-from .exceptions import PageBitNameClash
 from .models import BitGroup
 
 
@@ -33,13 +32,7 @@ class PageBitView(TemplateView):
             # view, which could happen if you define two slugs with the same
             # bit slugs.
             for bit in group.bits.all():
-                if bit.context_name in new_context:
-                    raise PageBitNameClash(
-                        "Bit with context_name '%s' already exists "
-                        "in this view."
-                    )
-                else:
-                    new_context[bit.context_name] = bit.resolve()
+                new_context[bit.context_name] = bit.resolve()
 
         context.update(new_context)
         return context

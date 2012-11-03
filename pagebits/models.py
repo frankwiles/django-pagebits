@@ -186,3 +186,41 @@ class PageData(models.Model):
     def save(self, *args, **kwargs):
         self.modified = timezone.now()
         super(PageData, self).save(*args, **kwargs)
+
+
+class PageTemplate(models.Model):
+    """ Associate Template names to filesystem paths """
+    name = models.CharField(
+        _('Name'),
+        max_length=100,
+        help_text=_('Name shown to user'),
+    )
+
+    path = models.CharField(
+        _('Path'),
+        max_length=200,
+        help_text=_("Path to template in TEMPLATE_DIRS, for example 'pages/homepage.html'"),
+    )
+
+    class Meta:
+        verbose_name = _('Page Template')
+        verbose_name_plural = _('Page Template')
+        ordering = ('name', )
+
+
+class Page(models.Model):
+    """ Model to represent an automatic 'flatpage' """
+    name = models.CharField(_('Name'), max_length=100)
+    url = models.CharField(
+        _('URL'),
+        max_length=200,
+        help_text=_("Define the URL for this page, for example '/about/'"),
+        db_index=True,
+    )
+    template = models.ForeignKey(PageTemplate, related_name='pages')
+    bit_groups = models.ManyToManyField(BitGroup, related_name='pages')
+
+    class Meta:
+        verbose_name = _('Page')
+        verbose_name_plural = _('Pages')
+        ordering = ('name', )

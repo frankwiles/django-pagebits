@@ -175,7 +175,7 @@ admin.site.register(PageTemplate, PageTemplateAdmin)
 
 class PageAdmin(admin.ModelAdmin):
     list_display = ('name', 'url')
-    horizontal_filter = ('bit_groups',)
+    filter_horizontal = ('bit_groups',)
 
     class Meta:
         model = Page

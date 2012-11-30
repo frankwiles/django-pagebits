@@ -11,7 +11,7 @@ class PageBitMiddleware(object):
             return response
 
         try:
-            return PageView.as_view(request=request, url=request.path_info)
+            return PageView.as_view(url=request.path_info)
         except Http404:
             return response
         except:

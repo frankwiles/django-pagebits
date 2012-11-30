@@ -60,7 +60,7 @@ class PageView(PageBitView):
     url = None
 
     def get(self, request, *args, **kwargs):
-        self.url = self.kwargs.pop('url', None)
+        self.url = self.kwargs.pop('url', self.url)
         self.page = get_object_or_404(Page, url=self.url)
 
         self.group_slugs = [x.slug for x in self.page.bit_groups.all()]

@@ -6,3 +6,4 @@ def bitgroup_cache_key(slug):
         getattr(settings, 'PAGEBIT_CACHE_PREFIX', 'pagebits'),
         slug
     )
+

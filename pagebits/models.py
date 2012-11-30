@@ -207,6 +207,9 @@ class PageTemplate(models.Model):
         verbose_name_plural = _('Page Template')
         ordering = ('name', )
 
+    def __unicode__(self):
+        return "%s (%s)" % (self.name, self.path)
+
 
 class Page(models.Model):
     """ Model to represent an automatic 'flatpage' """

@@ -57,6 +57,7 @@ class PageView(PageBitView):
     """
     View to display more generic "flatpages"
     """
+    url = None
 
     def get(self, request, *args, **kwargs):
         self.url = self.kwargs.pop('url', None)

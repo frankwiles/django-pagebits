@@ -143,7 +143,7 @@ This can be done by either including the urls.py as a "catch all" like so::
 
 Or you can include Pagebits' middleware to do this for you, simple add::
 
-    'pagebits.middleware.PageBitMiddlware'
+    'pagebits.middleware.PageBitMiddleware'
 
 To your ``MIDDLEWARE_CLASSES`` in your ``settings.py`` file.
 

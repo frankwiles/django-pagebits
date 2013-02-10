@@ -32,6 +32,7 @@ class BitGroup(models.Model):
     class Meta:
         verbose_name = _('Bit Group')
         verbose_name_plural = _('Bit Groups')
+        ordering = ('name', )
 
     def __unicode__(self):
         return self.name
@@ -53,6 +54,7 @@ class PageEdit(BitGroup):
         verbose_name = _('Edit Page Data')
         verbose_name_plural = _('Edit Page Data')
         proxy = True
+        ordering = ('name', 'modified', 'created')
 
 
 class PageBit(models.Model):
@@ -227,4 +229,3 @@ class Page(models.Model):
         verbose_name = _('Page')
         verbose_name_plural = _('Pages')
         ordering = ('name', )
-

@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.safestring import SafeText
 
 from ..models import BitGroup, PageBit, PageData
+from ..utils import bitgroup_cache_key
 
 
 class PageBitModelTests(TestCase):
@@ -21,6 +22,17 @@ class PageBitModelTests(TestCase):
             type=PageBit.PLAIN_TEXT,
             group=self.group1
         )
+
+    def test_slugify(self):
+        g = BitGroup(name='footest')
+        g.save()
+        self.assertEqual(g.slug, 'footest')
+        self.assertTrue(g.created)
+        self.assertTrue(g.modified)
+
+    def test_cache_key(self):
+        t1 = bitgroup_cache_key('foo1')
+        self.assertEqual(t1, 'pagebits:foo1')
 
     def test_uniqueness(self):
         group2 = BitGroup.objects.create(name='TestGroup2')

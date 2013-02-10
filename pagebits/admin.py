@@ -113,6 +113,7 @@ class PageAdminForm(forms.ModelForm):
 
 class PageEditAdmin(admin.ModelAdmin):
     """ Admin to edit BitGroup data """
+    list_display = ('name', 'slug', 'description')
 
     class Meta:
         model = PageEdit

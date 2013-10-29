@@ -153,3 +153,22 @@ Settings that control caching and their defaults::
 
     PAGEBIT_CACHE_PREFIX = 'pagebits'
     PAGEBIT_CACHE_TIMEOUT = 3600
+
+Running Tests
+=============
+
+Setup (you must have Postgres installed & setup)::
+
+    $ createdb pagebits
+    $ git clone https://github.com/frankwiles/django-pagebits.git
+    $ cd django-pagebits
+    $ virtualenv env
+    $ . env/bin/activate
+    $ python setup.py develop
+    $ pip install -r pagebits/tests/requirements.txt
+
+Running the tests:
+
+    $ . env/bin/activate
+    $ cd pagebits
+    $ django-admin.py test pagebits --settings=pagebits.tests.settings

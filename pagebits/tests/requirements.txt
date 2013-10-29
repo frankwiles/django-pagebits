@@ -1,0 +1,7 @@
+coverage==3.7
+django-ckeditor==4.0.2
+django-coverage==1.2.4
+django-debug-toolbar==0.10.2
+psycopg2==2.5.1
+sqlparse==0.1.9
+wsgiref==0.1.2

@@ -103,7 +103,7 @@ You can also use PageBits as a slightly smart ``TemplateView``. This would defin
 
     urlpatters = patterns('',
         url(
-            regex=r'^homage.html$',
+            regex=r'^homepage.html$',
             view=PageBitView.as_view(),
             name='homepage',
             kwargs={

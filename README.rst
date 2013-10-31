@@ -108,7 +108,7 @@ You can also use PageBits as a slightly smart ``TemplateView``. This would defin
             name='homepage',
             kwargs={
                 'template_name': 'home.html',
-                'group_slugs': ['homepage-meta', 'homepage-content'],
+                'groups': ['homepage-meta', 'homepage-content'],
             },
         )
     )

@@ -1,0 +1,6 @@
+.DS_Store
+*.pyc
+__pycache__
+django_pagebits.egg-info
+env
+pagebits/tests/coverage

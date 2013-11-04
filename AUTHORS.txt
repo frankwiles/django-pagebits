@@ -1,2 +1,6 @@
 Originally created by Frank Wiles <frank@revsys.com>
 
+Contributions by these fine people:
+
+Daniel Lindsley <daniel@toastdriven.com>
+Jeff Triplett <jeff.triplett@gmail.com>
